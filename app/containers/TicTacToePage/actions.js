@@ -17,16 +17,11 @@
 
 import {
   START_GAME, END_GAME,
-  CHANGE_GAME_SIZE, MAKE_MOVE, MAKE_MOVE_PC
+  CHANGE_GAME_SIZE, MAKE_MOVE, MAKE_MOVE_PC, CHANGE_CHILDREN_LEVEL
 } from './constants';
 
-/**
- * Changes the input field of the form
- *
- * @param  {name} name The new text of the input field
- *
- * @return {object}    An action object with a type of CHANGE_USERNAME
- */
+
+
 export function changeGameSize(size) {
   return {
     type: CHANGE_GAME_SIZE,
@@ -59,3 +54,12 @@ export function makeMovePC() {
     type: MAKE_MOVE_PC
   };
 }
+
+export function changeChildrenLevel(children_level) {
+  return {
+    type: CHANGE_CHILDREN_LEVEL,
+    children_level,
+  };
+}
+
+

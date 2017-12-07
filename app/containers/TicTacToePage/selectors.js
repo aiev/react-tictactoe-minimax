@@ -24,6 +24,11 @@ const makeSelectPlayerTurn = () => createSelector(
   (tictactoeState) => tictactoeState.get('player_turn')
 );
 
+const makeSelectChildrenLevel = () => createSelector(
+  selectTictactoe,
+  (tictactoeState) => tictactoeState.get('children_level')
+);
+
 
 export {
   selectTictactoe,
@@ -31,4 +36,5 @@ export {
   makeSelectStarted,
   makeSelectSize,
   makeSelectMinimax,
+  makeSelectChildrenLevel,
 };

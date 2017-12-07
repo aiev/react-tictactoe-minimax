@@ -24,8 +24,8 @@ import Input from './Input';
 import Section from './Section';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
-import { startGame, endGame, makeMove, makeMovePC, changeGameSize } from './actions';
-import { makeSelectPlayerTurn, makeSelectStarted, makeSelectSize, makeSelectMinimax } from './selectors';
+import { startGame, endGame, makeMove, makeMovePC, changeGameSize, changeChildrenLevel } from './actions';
+import { makeSelectPlayerTurn, makeSelectStarted, makeSelectSize, makeSelectMinimax, makeSelectChildrenLevel } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -67,17 +67,23 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
       size,
       minimax,
       player_turn,
-      started
+      started,
+      children_level
     } = this.props;
 
     // retona 3 para empate, false pra sem ganhador (jogo ainda nao terminou)
     // ou o numero do jogador 1 = x; 2 = o
     let winner = false;
+    let childrenLevelAC = [];
+    let lastNode = null;
 
-    if (started)
+    if (started) {
       winner = minimax.game.checkWin();
+      lastNode = minimax.currentNode;
+    }
 
     console.log(this.props);
+    console.log('children_level', children_level);
 
     return (
       <article>
@@ -121,7 +127,7 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
               <p></p>
               {winner == Player.TIE ? <p>Empate!</p> : null}
               {winner == Player.X ? <p>PC ganhou :)</p> : null}
-              {winner == Player.O ? <p>Você ganhou, queridinho.. como tu conseguiu isso?</p> : null}
+              {winner == Player.O ? <p>Você ganhou, queridinho..</p> : null}
               <p></p>
               {started && winner === false ? <A href="#" onClick={this.props.onEndGame}>Terminar</A> : <A href="#" onClick={this.props.onStartGame}>Iniciar</A>}
 
@@ -131,9 +137,32 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
           </Section>
           {started ?
           <div className="wrap-children">
-            {minimax.currentNode.children.map((node, i) => {
+            <div className="children">
+              {minimax.currentNode.children.map((node, i) => {
+                return (
+                  <MiniBoard key={i} board={node.board} score={node.score} active={children_level != null && children_level[0] == i} onClick={this.props.onChangeChildrenLevel.bind(this, [i])} />
+                );
+              })}
+            </div>
+            {children_level != null && children_level.map((nodeIndex, index) => {
+              lastNode = lastNode.children[nodeIndex];
+
+              childrenLevelAC.push(nodeIndex);
+
               return (
-                <MiniBoard key={i} board={node.board} score={node.score} />
+                <div className="children" key={index}>
+                {lastNode.children.map((node, i) => {
+                  let currentChildrenLevel = childrenLevelAC.slice(0);
+
+                  let active = children_level[currentChildrenLevel.length] == i;
+
+                  currentChildrenLevel.push(i);
+
+                  return (
+                    <MiniBoard key={i} board={node.board} active={active} score={node.score} onClick={this.props.onChangeChildrenLevel.bind(this, currentChildrenLevel)} />
+                  );
+                })}
+                </div>
               );
             })}
           </div>
@@ -149,6 +178,7 @@ TicTacToePage.propTypes = {
   started: PropTypes.bool,
   player_turn: PropTypes.number,
   minimax: PropTypes.object,
+  /*children_level: PropTypes.object,*/
 
   onStartGame: PropTypes.func,
   onEndGame: PropTypes.func,
@@ -174,6 +204,9 @@ export function mapDispatchToProps(dispatch) {
 
       dispatch(makeMove(x, y));
     },
+    onChangeChildrenLevel: (children_level, evt) => {
+      dispatch(changeChildrenLevel(children_level));
+    }
   };
 }
 
@@ -182,6 +215,7 @@ const mapStateToProps = createStructuredSelector({
   player_turn: makeSelectPlayerTurn(),
   started: makeSelectStarted(),
   size: makeSelectSize(),
+  children_level: makeSelectChildrenLevel(),
   loading: makeSelectLoading(),
   error: makeSelectError(),
 });

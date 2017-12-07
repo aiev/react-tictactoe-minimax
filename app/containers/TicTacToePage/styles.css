@@ -15,6 +15,9 @@ p {
 .wrap-children .mini-board {
     text-align: center;
 }
+.wrap-children .mini-board.active {
+    background-color: #eee;
+}
 
 .wrap-children .mini-board + .mini-board {
     margin-left: 10px;

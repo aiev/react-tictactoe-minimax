@@ -14,8 +14,8 @@ import { MAP_PLAYER_DISPLAY_NAME } from '../../containers/TicTacToePage/constant
 function MiniBoard(props) {
 
   return (
-    <div className="mini-board">
-      <div className="board">
+    <div className={"mini-board" + (props.active ? " active" : "")}>
+      <div className="board" onClick={props.onClick}>
         {
           props.board.map((rows, x) => {
             let cols = rows.map((col, y) => {
@@ -37,7 +37,9 @@ function MiniBoard(props) {
 
 MiniBoard.propTypes = {
   board: PropTypes.array,
-  score: PropTypes.number
+  score: PropTypes.number,
+  onClick: PropTypes.func,
+  active: PropTypes.bool
 };
 
 export default MiniBoard;

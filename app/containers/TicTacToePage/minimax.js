@@ -46,28 +46,34 @@ export default class Minimax {
         board: this.game.board,
         children: [],
         player: this.firstMove == Player.X ? Player.O : Player.X,
+        // player: this.firstMove == Player.X ? Player.O : Player.X,
         score: null
       };
     }
+
+    this.countNodes++;
 
     return this.getChildren(root);
   }
 
   computeMinimax(node) {
-    // calcula o valor minimax de um nodo
+    // calcula o valor do score de um nodo
+/*    let min = node.score == null ? 0 : node.score;
+    let max = node.score == null ? 0 : node.score;*/
+
     let min = 0;
     let max = 0;
 
     for (let c = 0; c < node.children.length; c++) {  // percorre todos os filhos do nodo
-      if (node.children[c].score == null) { // se um filho ainda não tem um valor minimax (não é folha da árvore)
+      if (node.children[c].score == null) { // se um filho ainda não tem um valor score (não é folha da árvore)
         this.computeMinimax(node.children[c]); // chama a função recursivamente para aquele filho
       }
 
       let score = node.children[c].score;
 
-      // guarda valor max (maior minimax entre os filhos)
+      // guarda valor max (maior score entre os filhos)
       max = Math.max(score, max);
-      // guarda valor min (menor minimax entre os filhos)
+      // guarda valor min (menor score entre os filhos)
       min = Math.min(score, min);
     }
 
@@ -222,6 +228,9 @@ export default class Minimax {
     // se o O ganhou, min
     if (winner == Player.O)
       score = score * -1;
+
+
+    // console.log('score', score);
 
     return score;
   }

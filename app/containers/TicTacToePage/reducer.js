@@ -16,7 +16,7 @@ import Minimax from './minimax';
 
 
 import {
-  CHANGE_GAME_SIZE, START_GAME, END_GAME, MAKE_MOVE, MAKE_MOVE_PC
+  CHANGE_GAME_SIZE, START_GAME, END_GAME, MAKE_MOVE, MAKE_MOVE_PC, CHANGE_CHILDREN_LEVEL
 } from './constants';
 
 // The initial state of the App
@@ -25,7 +25,7 @@ const initialState = fromJS({
   started: false,
   player_turn: Player.O,
   minimax: null,
-  force: 1
+  children_level: null,
 });
 
 function tictactoeReducer(state=initialState, action) {
@@ -34,6 +34,9 @@ function tictactoeReducer(state=initialState, action) {
 
       return state.set('size', action.size)
         .set('minimax', new Minimax(new Board(action.size)));
+
+    case CHANGE_CHILDREN_LEVEL:
+      return state.set('children_level', action.children_level);
 
     case START_GAME:
       let size = state.get('size');
