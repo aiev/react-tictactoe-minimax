@@ -8,4 +8,4 @@
 #### by Aiev
 
 
-Demo http://aiev.46graus.com/react-tictactoe-minimax
+Demo http://aiev.46graus.com/
