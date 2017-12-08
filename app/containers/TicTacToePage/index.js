@@ -57,8 +57,8 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
   }*/
 
   componentDidMount() {
-    window.Board = Board;
-    window.Minimax = Minimax;
+/*    window.Board = Board;
+    window.Minimax = Minimax;*/
   }
 
   render() {
@@ -138,6 +138,7 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
           {started ?
           <div className="wrap-children">
             <div className="children">
+              <div className="mini-board name">{lastNode != null && lastNode.children.length > 0 ? (lastNode.player == Player.X ? "O" : "X") : ""}</div>
               {minimax.currentNode.children.map((node, i) => {
                 return (
                   <MiniBoard key={i} board={node.board} score={node.score} active={children_level != null && children_level[0] == i} onClick={this.props.onChangeChildrenLevel.bind(this, [i])} />
@@ -145,13 +146,17 @@ export class TicTacToePage extends React.PureComponent { // eslint-disable-line 
               })}
             </div>
             {children_level != null && children_level.map((nodeIndex, index) => {
+              if (lastNode == null)
+                return null;
+
               lastNode = lastNode.children[nodeIndex];
 
               childrenLevelAC.push(nodeIndex);
 
               return (
                 <div className="children" key={index}>
-                {lastNode.children.map((node, i) => {
+                  <div className="mini-board name">{lastNode != null && lastNode.children.length > 0 ? (lastNode.player == Player.X ? "O" : "X") : ""}</div>
+                {lastNode != null && lastNode.children.map((node, i) => {
                   let currentChildrenLevel = childrenLevelAC.slice(0);
 
                   let active = children_level[currentChildrenLevel.length] == i;

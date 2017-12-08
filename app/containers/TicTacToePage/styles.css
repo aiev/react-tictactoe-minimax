@@ -9,11 +9,15 @@ p {
 
 .wrap-children .mini-board,
 .game {
-    vertical-align: top;
+    vertical-align: middle;
     display: inline-block;
 }
 .wrap-children .mini-board {
     text-align: center;
+}
+.wrap-children .mini-board.name {
+    font-size: 30px;
+    margin: 10px 10px 45px 10px;
 }
 .wrap-children .mini-board.active {
     background-color: #eee;

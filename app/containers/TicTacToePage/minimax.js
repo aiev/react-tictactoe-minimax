@@ -28,25 +28,20 @@ export default class Minimax {
     this.levelOfIntelligence = levelOfIntelligence;
     this.countNodes = 0;
 
-    this.currentNode = this.tree = this.buildTree();
+    // primeira coisa q temos q fazer é criar a arvore de todas as jogadas
+    this.currentNode = this.tree = this.buildTree_test(); // ela vai retornar o nodo raiz
 
+    // passamos o nodo raiz para q a gente calcule o minimax dos nodos
     this.computeMinimax(this.currentNode);
   }
 
   buildTree(root=null) {
     if (root == null) {
-/*      this.game.move(1, 1, 1);
-      this.game.move(2, 0, 2);
-      this.game.move(1, 2, 1);
-      this.game.move(0, 2, 2);
-      this.game.move(2, 2, 1);
-*/
       root = {
         parent: null,
         board: this.game.board,
         children: [],
         player: this.firstMove == Player.X ? Player.O : Player.X,
-        // player: this.firstMove == Player.X ? Player.O : Player.X,
         score: null
       };
     }
@@ -56,8 +51,139 @@ export default class Minimax {
     return this.getChildren(root);
   }
 
+  getChildren(node) {
+    let player = node.player == Player.X ? Player.O : Player.X; // verifica de quem é a vez de jogar nesse nível
+
+    for (let x = 0; x < this.boardSize; x++) {
+      for (let y = 0; y < this.boardSize; y++) {
+        // é um espaço vazio no tabuleiro
+        if (node.board[x][y] == 0) {
+          let newBoard = this.copyBoard(node.board);
+          newBoard[x][y] = player;
+
+          let newNode = {
+            parent: node,
+            board: newBoard,
+            children: [],
+            player: player,
+            score: this.getScore(newBoard) // se eh terminal, calculamos o score dele
+          }
+
+          node.children.push(newNode);
+          this.countNodes++;
+
+          if (this.countNodes % 100000 == 0) {
+            console.log(this.countNodes, 'dale');
+          }
+
+          let isTerminal = newNode.score != null;
+
+          // se nao eh um nodo terminal, pega felhinhos uaheue
+          if (!isTerminal)
+            this.getChildren(newNode);
+        }
+      }
+    }
+
+    return node;
+  }
+
+
+  buildTree_test(root=null) {
+    this.heap = [];
+
+    if (root == null) {
+      root = {
+        parent: null,
+        board: this.game.board,
+        children: [],
+        player: this.firstMove == Player.X ? Player.O : Player.X,
+        score: null
+      };
+    }
+
+    // empinha o nodo root pra pegar os fillhos deles
+    this.heap.push(root);
+
+    while(this.heap.length > 0) {
+      this.getChildren_test(this.heap.pop()); // desempilha passando ja por parametro pra funcao pra pegar os filhos desse cara
+    }
+
+    return root;
+  }
+
+
+  getChildren_test(node) {
+    let player = node.player == Player.X ? Player.O : Player.X; // verifica de quem é a vez de jogar nesse nível
+
+    // vamos percorrer todos os espaços do tabuleiro
+    for (let x = 0; x < this.boardSize; x++) {
+      for (let y = 0; y < this.boardSize; y++) {
+        // se for um espaço vazio no tabuleiro
+        if (node.board[x][y] == 0) {
+          // copia o estado do board atual
+          let newBoard = this.copyBoard(node.board);
+          // efetua a jogada em nome do player q deve jogar
+          newBoard[x][y] = player;
+
+          // cria o nodo filho com esse board
+          let newNode = {
+            parent: node,
+            board: newBoard,
+            children: [],
+            player: player,
+            score: this.getScore(newBoard) // se eh terminal, calculamos o score dele
+          }
+
+          // adiciona como filho do node atual
+          node.children.push(newNode);
+          this.countNodes++;
+
+          if (this.countNodes % 100000 == 0) {
+            console.log(this.countNodes, 'dale');
+          }
+
+          let isTerminal = newNode.score != null;
+
+          // se nao eh um nodo terminal, pega felhinhos uaheue
+          if (!isTerminal)
+            this.heap.push(newNode);
+        }
+      }
+    }
+  }
+
+  getScore(board) {
+    let newGame = new Board(this.boardSize);
+    newGame.setBoard(board);
+
+    // retona 3 para empate, false pra sem ganhador (jogo ainda nao terminou)
+    // ou o numero do jogador 1 = x; 2 = o
+    let winner = newGame.checkWin();
+
+    // nao temos vencedor e ainda nao acabou o jogo
+    if (winner == false)
+      return null;
+
+    // empate
+    if (winner == Player.TIE)
+      return 0;
+
+    let countEmptyCells = newGame.getEmptyCells().length;
+    let score = countEmptyCells + 1;
+
+    // se o O ganhou, min
+    if (winner == Player.O)
+      score = score * -1;
+
+
+    // console.log('score', score);
+
+    return score;
+  }
+
+
   computeMinimax(node) {
-    // calcula o valor do score de um nodo
 /*    let min = node.score == null ? 0 : node.score;
     let max = node.score == null ? 0 : node.score;*/
 
@@ -70,11 +196,13 @@ export default class Minimax {
       }
 
       let score = node.children[c].score;
+      /*let score = node.score;*/
 
       // guarda valor max (maior score entre os filhos)
       max = Math.max(score, max);
       // guarda valor min (menor score entre os filhos)
       min = Math.min(score, min);
+
     }
 
     // se a atual foi do Player.O, o Player.X é o proximo, e o X maximiza
@@ -83,6 +211,7 @@ export default class Minimax {
     } else {
       node.score = min; // caso contrário, retorna valor min
     }
+
   }
 
   move(x, y, player) {
@@ -167,72 +296,6 @@ export default class Minimax {
     }
 
     return true;
-  }
-
-  getChildren(node) {
-    let player = node.player == Player.X ? Player.O : Player.X; // verifica de quem é a vez de jogar nesse nível
-
-    for (let x = 0; x < this.boardSize; x++) {
-      for (let y = 0; y < this.boardSize; y++) {
-        // é um espaço vazio no tabuleiro
-        if (node.board[x][y] == 0) {
-          let newBoard = this.copyBoard(node.board);
-          newBoard[x][y] = player;
-
-          let newNode = {
-            parent: node,
-            board: newBoard,
-            children: [],
-            player: player,
-            score: this.getScore(newBoard) // se eh terminal, calculamos o score dele
-          }
-
-          node.children.push(newNode);
-          this.countNodes++;
-
-          if (this.countNodes % 100000 == 0) {
-            console.log(this.countNodes, 'dale');
-          }
-
-          let isTerminal = newNode.score != null;
-
-          // se nao eh um nodo terminal, pega felhinhos uaheue
-          if (!isTerminal)
-            this.getChildren(newNode);
-        }
-      }
-    }
-
-    return node;
-  }
-
-  getScore(board) {
-    let newGame = new Board(this.boardSize);
-    newGame.setBoard(board);
-
-    // retona 3 para empate, false pra sem ganhador (jogo ainda nao terminou)
-    // ou o numero do jogador 1 = x; 2 = o
-    let winner = newGame.checkWin();
-
-    // nao temos vencedor e ainda nao acabou o jogo
-    if (winner == false)
-      return null;
-
-    // empate
-    if (winner == Player.TIE)
-      return 0;
-
-    let countEmptyCells = newGame.getEmptyCells().length;
-    let score = countEmptyCells + 1;
-
-    // se o O ganhou, min
-    if (winner == Player.O)
-      score = score * -1;
-
-
-    // console.log('score', score);
-
-    return score;
   }
 
   copyBoard(board) {
